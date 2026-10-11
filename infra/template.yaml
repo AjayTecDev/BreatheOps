@@ -1,0 +1,187 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: BreatheOps backend - API Gateway + Lambda + DynamoDB + CloudWatch
+
+Parameters:
+  BedrockModelId:
+    Type: String
+    Default: ""
+    Description: "Optional Bedrock model ID. Leave empty to disable AI inference."
+
+  AppEnv:
+    Type: String
+    Default: local
+    AllowedValues:
+      - local
+      - production
+    Description: "Production requires token authentication, HTTPS origin and DynamoDB."
+
+  EnvironmentProvider:
+    Type: String
+    Default: replay
+    AllowedValues:
+      - replay
+      - live
+
+  AuthMode:
+    Type: String
+    Default: demo
+    AllowedValues:
+      - demo
+      - token
+    Description: "Demo authentication is for local development only."
+
+  AdminToken:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: "Admin token for token authentication. Use a strong secret."
+
+  EnvironmentApiUrl:
+    Type: String
+    Default: ""
+
+  EnvironmentApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: "Optional external environment API key."
+
+  AllowedOrigin:
+    Type: String
+    Default: "*"
+    Description: "Set to the exact HTTPS frontend origin before production deployment."
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+          - authorization
+          - x-admin-name
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+
+  ApiFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/src/
+      Handler: breatheops.handler.lambda_handler
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          APP_ENV: !Ref AppEnv
+          ENVIRONMENT_PROVIDER: !Ref EnvironmentProvider
+          AUTH_MODE: !Ref AuthMode
+          ADMIN_TOKEN: !Ref AdminToken
+          ENVIRONMENT_API_URL: !Ref EnvironmentApiUrl
+          ENVIRONMENT_API_KEY: !Ref EnvironmentApiKey
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+      Events:
+        Analyze:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /analyze
+            Method: POST
+
+        Decisions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /decisions
+            Method: POST
+
+        School:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /school
+            Method: GET
+
+        Zones:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /zones
+            Method: GET
+
+        Activities:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /activities
+            Method: GET
+
+        History:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /history
+            Method: GET
+
+        DailyPlan:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /daily-plan
+            Method: GET
+
+  ErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ApiFn
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  ApiUrl:
+    Description: BreatheOps API endpoint
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+
+  TableName:
+    Description: BreatheOps DynamoDB table name
+    Value: !Ref Table

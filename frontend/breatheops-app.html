@@ -1,0 +1,217 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BreatheOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#edf3f4;--sf:#fff;--ink:#10262b;--mut:#566f76;--ln:#d2dee1;--ac:#0f5a63;--onac:#fff;--hi:#b02a21;--hit:#fbe7e4;--md:#8f5400;--mdt:#fcefd6;--lo:#1f6b49;--lot:#e2f2e9;--in:#1f5f99;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a171b;--sf:#122a30;--ink:#e5f0f1;--mut:#93adb3;--ln:#25424a;--ac:#62c3cd;--onac:#06242a;--hi:#ff8a80;--hit:#3a1b19;--md:#f2b44d;--mdt:#35280f;--lo:#6fd1a3;--lot:#12342a;--in:#7fb8ee}}
+:root[data-theme="dark"]{--bg:#0a171b;--sf:#122a30;--ink:#e5f0f1;--mut:#93adb3;--ln:#25424a;--ac:#62c3cd;--onac:#06242a;--hi:#ff8a80;--hit:#3a1b19;--md:#f2b44d;--mdt:#35280f;--lo:#6fd1a3;--lot:#12342a;--in:#7fb8ee}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3,.num,.big2{font-family:Newsreader,Georgia,serif;font-weight:600;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 96px}
+h1{font-size:2.3rem;line-height:1.1;margin:24px 0 12px}
+h2{font-size:1.5rem;margin:20px 0 8px}h3{font-size:1.1rem;margin:0 0 8px}
+.lead{color:var(--mut);margin:0 0 12px}.fine{color:var(--mut);font-size:.85rem;margin:8px 0}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:16px;margin:12px 0;display:block;width:100%;text-align:left;color:inherit;font:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+.btn{display:block;width:100%;min-height:48px;padding:0 18px;margin:8px 0;border-radius:10px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);font-weight:600}
+.btn.p{background:var(--ac);color:var(--onac);border-color:var(--ac)}.btn.d{color:var(--hi)}
+.back{background:none;border:0;color:var(--ac);padding:8px 0;min-height:44px;font-weight:600}
+.badge{display:inline-block;border:1px solid var(--in);color:var(--in);border-radius:999px;padding:2px 10px;font-size:.85rem}
+.chip{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.85rem;font-weight:600}
+.chip.hi{background:var(--hit);color:var(--hi)}.chip.md{background:var(--mdt);color:var(--md)}.chip.lo{background:var(--lot);color:var(--lo)}
+.num{font-size:5rem;line-height:1}.cat{color:var(--mut);margin:0 0 14px}
+.scale{display:flex;height:10px;border-radius:5px;position:relative;margin:18px 0 6px}
+.scale i{display:block;height:100%}.scale i:first-child{border-radius:5px 0 0 5px}.scale i:nth-child(6){border-radius:0 5px 5px 0}
+.mk{position:absolute;top:-6px;width:4px;height:22px;background:var(--ink);border-radius:2px;margin-left:-2px}
+.prov{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 0;font-size:.9rem}.prov dt{color:var(--mut)}.prov dd{margin:0}
+.warn{background:var(--mdt);color:var(--md);border-radius:10px;padding:10px 14px;margin:12px 0;font-weight:600}
+.day{position:relative;height:36px;background:var(--bg);border:1px solid var(--ln);border-radius:8px;margin:8px 0 2px}
+.blk{position:absolute;top:4px;bottom:4px;min-width:6px;border-radius:5px}.blk.hi{background:var(--hi)}.blk.md{background:var(--md)}.blk.lo{background:var(--lo)}
+.ends{display:flex;justify-content:space-between;color:var(--mut);font-size:.8rem}
+ul.rows{list-style:none;margin:8px 0 0;padding:0}
+.row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 0;background:none;border:0;border-top:1px solid var(--ln);color:inherit;text-align:left}
+.row .t{font-weight:600;min-width:3rem}.row .n{flex:1}.row small{display:block;color:var(--mut)}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.st{color:var(--mut);font-size:.85rem}
+.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.cmp small{display:block;color:var(--mut)}.cmp b{display:block}
+.bar{display:grid;grid-template-columns:5.5rem 1fr 3rem;gap:10px;align-items:center;margin:8px 0}.bar div{height:12px;background:var(--bg);border-radius:6px}.bar i{display:block;height:100%;border-radius:6px}
+.big2{font-size:3.2rem;display:flex;gap:14px;align-items:baseline}
+.counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-top:12px}.counts b{display:block;font-size:1.4rem}.counts span{color:var(--mut);font-size:.8rem}
+.opt{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--ln)}.opt small{display:block;color:var(--mut)}
+.f{display:block;margin:16px 0 8px;color:var(--mut)}.f input,textarea{display:block;width:100%;margin-top:4px;padding:12px;border:1px solid var(--ln);border-radius:10px;background:var(--sf);color:var(--ink);font:inherit}
+.how{padding-left:20px}.how li{margin:8px 0}
+.item{border-top:1px solid var(--ln);padding:10px 0}.item:first-child{border-top:0}.item small{display:block;color:var(--mut)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;min-height:56px;background:none;border:0;border-top:3px solid transparent;color:var(--mut);font-weight:600}
+nav button[aria-current="page"]{color:var(--ac);border-top-color:var(--ac)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:root{--rp:#6b3fa0}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--rp:#c7a6f2}}:root[data-theme="dark"]{--rp:#c7a6f2}
+.badge.live{border-color:var(--lo);color:var(--lo)}.badge.rep{border-color:var(--rp);color:var(--rp)}.load{text-align:center;color:var(--mut)}
+.err{background:var(--hit);color:var(--hi);border-radius:10px;padding:10px 14px;margin:12px 0;font-weight:600}
+@media(min-width:900px){.wrap{max-width:980px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid>.card{margin:0}.grid+.btn{margin-top:16px}}
+
+:root{--bg:#f2f8f8;--ac:#0a6b75}
+body{font:400 18px/1.6 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3,.num,.big2{font-family:inherit;font-weight:700}
+h1{font-size:2.2rem;margin:4px 0 8px}h2{font-size:1.5rem}
+.btn{min-height:58px;font-size:1.05rem;border-radius:14px}.row{min-height:68px}
+.hero{border-radius:20px;padding:20px;margin:12px 0;background:var(--sf);border:1px solid var(--ln)}.hero h2{margin:4px 0}.hero p{margin:0}
+.hero.lo{background:var(--lot)}.hero.md{background:var(--mdt)}.hero.hi{background:var(--hit)}
+.ico{font-size:2rem;line-height:1}.row .ico{font-size:1.6rem;min-width:2rem;text-align:center}
+.big{font-size:1.35rem;font-weight:700;margin:2px 0}
+.steps{display:flex;gap:6px;margin:8px 0 12px;font-size:.85rem}.steps span{flex:1;text-align:center;padding:6px 4px;border-radius:999px;background:var(--sf);border:1px solid var(--ln);color:var(--mut)}.steps .on{background:var(--ac);border-color:var(--ac);color:var(--onac);font-weight:700}
+.card.ok{border-color:var(--lo)}
+details summary{cursor:pointer;color:var(--ac);font-weight:700;min-height:44px;display:flex;align-items:center}
+nav button{font-size:.85rem;padding-top:6px}nav button b{display:block;font-size:1.3rem;line-height:1.2}
+
+/* Responsive layout safeguard */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; margin: 0; }
+body { overflow-x: hidden; }
+.wrap { width: 100%; min-width: 0; }
+.grid { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.grid > * { min-width: 0; }
+.steps { min-width: 0; }
+.steps > span { min-width: 0; overflow-wrap: anywhere; }
+@media (min-width: 900px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// No business logic here: request, receive, display, submit decisions. FB (canonical replay) is the offline fallback only.
+const FB={"environment":{"aqi":238,"category":"Poor","pm25":101.8,"source":"REPLAY (CPCB-format scenario)","station":"Bidar (demo)","mode":"REPLAY","snapshot_id":null,"label":"REPLAY — Demonstration scenario","observed_at":"2026-10-10T08:32:00","retrieved_at":"2026-10-10T08:40:00","quality":"OK","status":"FRESH","age_minutes":8,"confidence":"High"},"risk_board":[{"activity_id":"a1","name":"Assembly","time":"09:00","duration":30,"zone":"Assembly Ground","setting":"Outdoor","dose":13.92,"risk":"MEDIUM"},{"activity_id":"a2","name":"Mathematics","time":"10:30","duration":45,"zone":"Main Building","setting":"Indoor","dose":6.26,"risk":"LOW"},{"activity_id":"a3","name":"Sports","time":"12:00","duration":60,"zone":"Sports Ground","setting":"Outdoor","dose":55.68,"risk":"HIGH"},{"activity_id":"a4","name":"Lunch","time":"13:00","duration":45,"zone":"Cafeteria","setting":"Indoor","dose":6.26,"risk":"LOW"},{"activity_id":"a5","name":"Bus departure","time":"15:00","duration":20,"zone":"Bus Area","setting":"Outdoor","dose":12.06,"risk":"MEDIUM"}],"plan":[{"activity_id":"a1","action":"MOVE_INDOORS","priority":2,"detail":"Move to Main Building","reason":"MEDIUM modeled exposure (13.9 weighted-min): outdoor assembly, 30 min at AQI 238 (Poor). Move to Main Building.","evidence":["AQI 238 (Poor)","Outdoor, 30 min","Data fresh, 8 min old"],"confidence":"High","modeled_impact":{"before":13.92,"after":4.18},"new_start":"09:00","new_duration":30,"new_zone":"Main Building","options":[{"action":"KEEP","detail":"No change","modeled_after":13.92,"new_start":"09:00","new_duration":30,"new_zone":"Assembly Ground","modification":{"zone_id":"assembly","start":"09:00","duration":30}},{"action":"MOVE_INDOORS","detail":"Move to Main Building","modeled_after":4.18,"new_start":"09:00","new_duration":30,"new_zone":"Main Building","modification":{"zone_id":"main","start":"09:00","duration":30}},{"action":"SHORTEN","detail":"Shorten to 15 min","modeled_after":6.96,"new_start":"09:00","new_duration":15,"new_zone":"Assembly Ground","modification":{"zone_id":"assembly","start":"09:00","duration":15}},{"action":"MONITOR","detail":"Keep, re-check conditions before start","modeled_after":13.92,"new_start":"09:00","new_duration":30,"new_zone":"Assembly Ground","modification":{"zone_id":"assembly","start":"09:00","duration":30}}]},{"activity_id":"a2","action":"KEEP","priority":null,"detail":"No change","reason":"LOW modeled exposure (6.3 weighted-min): indoor mathematics, 45 min at AQI 238 (Poor). No change.","evidence":["AQI 238 (Poor)","Indoor, 45 min","Data fresh, 8 min old"],"confidence":"High","modeled_impact":{"before":6.26,"after":6.26},"new_start":"10:30","new_duration":45,"new_zone":"Main Building","options":[{"action":"KEEP","detail":"No change","modeled_after":6.26,"new_start":"10:30","new_duration":45,"new_zone":"Main Building","modification":{"zone_id":"main","start":"10:30","duration":45}}]},{"activity_id":"a3","action":"SHORTEN","priority":1,"detail":"Shorten to 30 min","reason":"HIGH modeled exposure (55.7 weighted-min): outdoor sports, 60 min at AQI 238 (Poor). Shorten to 30 min.","evidence":["AQI 238 (Poor)","Outdoor, 60 min","Data fresh, 8 min old"],"confidence":"High","modeled_impact":{"before":55.68,"after":27.84},"new_start":"12:00","new_duration":30,"new_zone":"Sports Ground","options":[{"action":"KEEP","detail":"No change","modeled_after":55.68,"new_start":"12:00","new_duration":60,"new_zone":"Sports Ground","modification":{"zone_id":"sports","start":"12:00","duration":60}},{"action":"SHORTEN","detail":"Shorten to 30 min","modeled_after":27.84,"new_start":"12:00","new_duration":30,"new_zone":"Sports Ground","modification":{"zone_id":"sports","start":"12:00","duration":30}},{"action":"MONITOR","detail":"Keep, re-check conditions before start","modeled_after":55.68,"new_start":"12:00","new_duration":60,"new_zone":"Sports Ground","modification":{"zone_id":"sports","start":"12:00","duration":60}}]},{"activity_id":"a4","action":"KEEP","priority":null,"detail":"No change","reason":"LOW modeled exposure (6.3 weighted-min): indoor lunch, 45 min at AQI 238 (Poor). No change.","evidence":["AQI 238 (Poor)","Indoor, 45 min","Data fresh, 8 min old"],"confidence":"High","modeled_impact":{"before":6.26,"after":6.26},"new_start":"13:00","new_duration":45,"new_zone":"Cafeteria","options":[{"action":"KEEP","detail":"No change","modeled_after":6.26,"new_start":"13:00","new_duration":45,"new_zone":"Cafeteria","modification":{"zone_id":"cafe","start":"13:00","duration":45}}]},{"activity_id":"a5","action":"MONITOR","priority":2,"detail":"Keep, re-check conditions before start","reason":"MEDIUM modeled exposure (12.1 weighted-min): outdoor bus departure, 20 min at AQI 238 (Poor). Keep, re-check conditions before start.","evidence":["AQI 238 (Poor)","Outdoor, 20 min","Data fresh, 8 min old"],"confidence":"High","modeled_impact":{"before":12.06,"after":12.06},"new_start":"15:00","new_duration":20,"new_zone":"Bus Area","options":[{"action":"KEEP","detail":"No change","modeled_after":12.06,"new_start":"15:00","new_duration":20,"new_zone":"Bus Area","modification":{"zone_id":"bus","start":"15:00","duration":20}},{"action":"MONITOR","detail":"Keep, re-check conditions before start","modeled_after":12.06,"new_start":"15:00","new_duration":20,"new_zone":"Bus Area","modification":{"zone_id":"bus","start":"15:00","duration":20}}]}],"impact":{"baseline_index":100.0,"proposed_index":60.1,"pct_lower":39.9,"label":"39.9% lower modeled exposure index under this scenario"},"warnings":[],"disclaimer":"Modeled decision-support index. Not a clinical or epidemiological measure.","ai":{"attempted":false,"used_fallback":true,"validation_errors":[],"error":null},"school":"Green Valley Public School"};
+// ===== PRODUCTION CONFIG: the only block to edit per deployment (then run: python frontend/build.py) =====
+const CONFIG={
+ API_BASE:"http://localhost:8787",   // PLACEHOLDER: your API Gateway URL, e.g. https://abc123.execute-api.ap-south-1.amazonaws.com  (not a secret). Empty = demo mode with a saved example day.
+ AUTH:"demo"    // "demo" for local testing | "token" for production (staff then type the access code = ADMIN_TOKEN)
+};
+const S={scr:'login',base:'',token:'',name:'',school:null,A:null,dp:null,hist:null,hd:null,sel:null,open:null,opt:0,note:'',busy:null,bm:0,err:null,off:false};
+const $=s=>document.querySelector(s);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f1=n=>(Math.round(n*10)/10).toFixed(1);
+const T=i=>{if(!i)return 'unavailable';const s=String(i);const v=/(?:Z|[+-]\d{2}:\d{2})$/i.test(s)?s:s+'Z';const d=new Date(v);return Number.isNaN(d.getTime())?'unavailable':new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)};
+const mins=t=>{const[h,n]=t.split(':').map(Number);return h*60+n};
+const end=(t,m)=>{const x=mins(t)+m;return String(x/60|0).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+const AL={KEEP:'Keep as planned',MOVE_INDOORS:'Move indoors',SHORTEN:'Make it shorter',RESCHEDULE:'Move to another time',MONITOR:'Keep it, check again before'};
+const SAY={Good:['🌤️','Air is good today','No changes are needed.'],Satisfactory:['🌤️','Air is fine today','No changes are needed.'],Moderate:['🌥️','Air is moderate today','A few outdoor activities may need a change.'],Poor:['🌫️','Air is poor today','Some outdoor activities need a change.'],'Very poor':['🌫️','Air is very poor today','Most outdoor activities need a change.'],Severe:['🌫️','Air is severe today','Outdoor activities need a change.']};
+const SL={APPROVED:'Approved',MODIFIED:'Modified',REJECTED:'Rejected',PENDING:'Waiting for decision',NO_CHANGE:'No change needed'};
+const RK={HIGH:['\u25B2','High','hi'],MEDIUM:['\u25C6','Medium','md'],LOW:['\u25CF','Low','lo']};
+const QL={OK:'Reported AQI',DERIVED:'Derived from PM2.5',DEGRADED:'Last trusted reading'};
+const LOAD=["Analyzing today's schedule\u2026",'Checking environmental conditions\u2026','Evaluating activities\u2026','Preparing recommendations\u2026'];
+const MSG={UNAUTHORIZED:'That access code was not accepted. Please sign in again.',NETWORK:'Cannot reach BreatheOps right now. Please check your connection and try again.',NO_TIMETABLE:"No timetable configured. Add activities to analyze today's schedule.",ENVIRONMENT_UNAVAILABLE:'Environmental data is temporarily unavailable, so decisions are paused.'};
+const E=()=>S.A.environment;
+const WM={DEGRADED_DATA:()=>`Environmental data is temporarily unavailable. Using the last trusted snapshot. Confidence: ${E().confidence}.`,AI_FALLBACK:()=>'AI unavailable. Rule-based planning is active.',NO_ENV_DATA:()=>'Environmental data is temporarily unavailable. No recommendations were generated.'};
+
+const API={
+ async req(m,p,b){let r,j;const h={'Content-Type':'application/json'};if(S.name)h['X-Admin-Name']=S.name;if(S.token)h.Authorization='Bearer '+S.token;
+  try{r=await fetch(S.base+p,{method:m,headers:h,body:b?JSON.stringify(b):undefined});j=await r.json()}catch(e){throw{error:{code:'NETWORK'}}}
+  if(!j.success)throw j;return j.data},
+ getSchool(){return this.req('GET','/school')},
+ getZones(){return this.req('GET','/zones')},
+ getActivities(){return this.req('GET','/activities')},
+ analyze(b){return this.req('POST','/analyze',b||{})},
+ createDecision(b){return this.req('POST','/decisions',b)},
+ getDailyPlan(id){return this.req('GET','/daily-plan'+(id?'?analysis_id='+encodeURIComponent(id):''))},
+ getHistory(){return this.req('GET','/history?limit=20')}};
+
+const keep=()=>{try{sessionStorage.setItem('bo',JSON.stringify({base:S.base,token:S.token,name:S.name,A:S.off?null:S.A}))}catch(e){}};
+const load=()=>{try{return JSON.parse(sessionStorage.getItem('bo')||'{}')}catch(e){return{}}};
+async function run(kind,fn){S.err=null;S.busy=kind;S.bm=0;const t=kind==='analyze'?setInterval(()=>{S.bm=(S.bm+1)%4;render()},1400):0;render();
+ try{await fn()}catch(e){S.err=e}finally{clearInterval(t);S.busy=null}render()}
+async function syncDp(){if(S.off||!S.A||!S.A.analysis_id){S.dp=null;return}S.dp=await API.getDailyPlan(S.A.analysis_id)}
+
+const chip=r=>{const k=RK[r];return k?`<span class="chip ${k[2]}"><b aria-hidden="true">${k[0]}</b> ${k[1]} risk</span>`:'<span class="chip">No data</span>'};
+const item=id=>S.dp&&S.dp.items.find(i=>i.activity_id===id);
+const stat=id=>{const i=item(id);if(i)return SL[i.status];const p=S.A.plan.find(x=>x.activity_id===id);return p&&p.action==='KEEP'?SL.NO_CHANGE:SL.PENDING};
+const pending=()=>S.A.plan.filter(p=>p.action!=='KEEP'&&stat(p.activity_id)===SL.PENDING);
+const msg=()=>S.err?`<div class="err" role="alert">${esc(MSG[(S.err.error||{}).code]||(S.err.error||{}).message||'Something went wrong.')}${S.err.request_id?` Request ${esc(S.err.request_id)}.`:''}</div>`:'';
+const warns=()=>(S.off?'<div class="warn" role="status">Offline demo: showing the saved replay scenario. Connect the API to record decisions.</div>':'')+(S.A?S.A.warnings.filter(w=>w.code!=='PROVIDER'&&w.code!=='DERIVED_AQI').map(w=>`<div class="warn" role="status">\u26A0 ${esc(WM[w.code]?WM[w.code]():w.message)}</div>`).join(''):'');
+function modeBadge(e){if(e.mode==='LIVE')return `<span class="badge live">\u25CF LIVE</span> <span class="fine">${esc(e.label.replace(/^LIVE \u2014 /,''))}</span>`;
+ if(e.mode==='REPLAY')return '<span class="badge rep">\u25C6 REPLAY</span> <span class="fine">Demonstration scenario</span>';return '<span class="badge">No data</span>'}
+function scale(e){const bands=[[50,'#2f9e6f'],[100,'#8ab53a'],[200,'#d9a81e'],[300,'#e07a1f'],[400,'#c8352b'],[500,'#7a1f2b']];let p=0;
+ return `<div class="scale" role="img" aria-label="AQI ${e.aqi} on a 0 to 500 scale, ${esc(e.category)}">${bands.map(b=>{const w=b[0]-p;p=b[0];return `<i style="width:${w/5}%;background:${b[1]}"></i>`}).join('')}<span class="mk" style="left:${Math.min(e.aqi,500)/5}%"></span></div>`}
+function strip(){return `<div class="day" role="img" aria-label="School day colored by risk">${S.A.risk_board.map(b=>`<span class="blk ${(RK[b.risk]||['','','lo'])[2]}" style="left:${(mins(b.time)-510)/4.5}%;width:${b.duration/4.5}%" title="${esc(b.name)}"></span>`).join('')}</div><div class="ends"><span>08:30</span><span>16:00</span></div>`}
+function prov(e){return `<dt>Source</dt><dd>${esc(e.source)}</dd><dt>Station</dt><dd>${esc(e.station)}</dd><dt>Observed</dt><dd>${T(e.observed_at)}</dd><dt>Retrieved</dt><dd>${T(e.retrieved_at)}</dd><dt>Freshness</dt><dd>${esc(e.status.charAt(0)+e.status.slice(1).toLowerCase())}, ${e.age_minutes} min old</dd><dt>AQI type</dt><dd>${QL[e.quality]||''}</dd><dt>Confidence</dt><dd>${esc(e.confidence)}</dd><dt>Mode</dt><dd>${esc(e.mode)}</dd>`}
+
+function login(){return `<div class="wrap"><div class="hero"><div class="ico" aria-hidden="true">🍃</div><h1>BreatheOps</h1><p class="lead">Check today's air quality, see which school activities need a change, and decide with one tap.</p></div>${msg()}
+<section class="card"><label class="f">Your name<input id="adm" autocomplete="name" maxlength="60" placeholder="For example, Ms. Rao" value="${esc(S.name)}"></label>${CONFIG.AUTH==='token'?'<label class="f">Access code<input id="tok" type="password" autocomplete="current-password"></label>':''}<button class="btn p" data-a="go">Start</button>${CONFIG.API_BASE?'':'<p class="fine">Demo mode: this shows a saved example day. Nothing is recorded.</p>'}</section>
+<h2>How it works</h2><ol class="how"><li><b>See the air.</b> Today's air quality and where it came from.</li><li><b>Review the plan.</b> We suggest only changes your campus can really make.</li><li><b>You decide.</b> Approve, choose another way, or keep things as they are.</li></ol></div>`}
+
+function today(){const sc=S.school?S.school.name:'BreatheOps',top=`<p class="fine">${esc(S.name?'Hello, '+S.name:'Hello')}. <button class="back" data-a="out">Sign out</button></p><h2>${esc(sc)}</h2>`;
+ if(!S.A)return `<div class="wrap">${top}${msg()}<div class="hero"><div class="ico" aria-hidden="true">🍃</div><h3>Ready when you are</h3><p class="lead">Check today's air against your timetable.</p></div><button class="btn p" data-a="plan">Plan my day</button></div>`;
+ const e=E(),tot=S.A.risk_board.length,n=S.A.plan.filter(p=>p.action!=='KEEP').length,s=e.aqi==null?['⚠️','Air data is unavailable','No recommendations were made.']:(SAY[e.category]||SAY.Moderate),tone=e.aqi==null?'md':({Good:'lo',Satisfactory:'lo',Moderate:'md'}[e.category]||'hi');
+ return `<div class="wrap">${top}${modeBadge(e)}${msg()}${warns()}<div class="hero ${tone}"><div class="ico" aria-hidden="true">${s[0]}</div><h2>${s[1]}</h2><p>${e.aqi==null?s[2]:n+' of '+tot+' activities need attention. '+s[2]}</p></div><button class="btn p" data-a="plan">Plan my day</button>
+<button class="btn" data-a="refresh">Refresh analysis</button>
+<section class="card"><h3>Today's activities</h3>${strip()}<ul class="rows">${S.A.risk_board.map(b=>`<li><button class="row" data-a="open" data-id="${b.activity_id}"><span class="ico" aria-hidden="true">${b.setting==='Outdoor'?'☀️':'🏠'}</span><span class="n"><b>${b.time}</b> ${esc(b.name)}<small>${esc(b.zone)}, ${b.setting.toLowerCase()}, ${b.duration} min</small></span>${chip(b.risk)}</button></li>`).join('')}</ul></section>
+${e.aqi==null?'':`<section class="card"><details><summary>Air quality details</summary><div class="num">${e.aqi}</div><p class="cat">AQI, ${esc(e.category)}</p>${scale(e)}<dl class="prov">${prov(e)}</dl></details></section>`}</div>`}
+
+function plan(){if(!S.A)return `<div class="wrap"><h2>Today's plan</h2><section class="card"><p class="lead">No analysis yet. Run Plan my day first.</p></section><button class="btn p" data-a="plan">Plan my day</button></div>`;
+ const a=S.A.plan.filter(p=>p.action!=='KEEP').sort((x,y)=>x.priority-y.priority),k=S.A.plan.filter(p=>p.action==='KEEP'),bd=id=>S.A.risk_board.find(b=>b.activity_id===id);
+ if(!S.A.plan.length)return `<div class="wrap"><h2>Today's plan</h2>${warns()}<section class="card"><p class="lead">No recommendations. Environmental data is unavailable or the timetable is empty.</p></section></div>`;
+ return `<div class="wrap"><h2>Today's plan</h2>${msg()}${warns()}<div class="steps" aria-label="Steps"><span>1 See the air</span><span class="on">2 Review the plan</span><span>3 Decide</span></div><p class="lead">${a.length} changes suggested. ${k.length} activities need no change.</p><div class="grid">${a.map(p=>{const b=bd(p.activity_id);return `<button class="card" data-a="open" data-id="${p.activity_id}"><div class="ph">${chip(b.risk)}<span class="st">${stat(p.activity_id)}</span></div><h3>${b.time} ${esc(b.name)}</h3><div class="big">${AL[p.action]}</div><div>${esc(p.detail)}</div><div class="fine">Exposure score ${f1(p.modeled_impact.before)} → ${f1(p.modeled_impact.after)}</div></button>`}).join('')}</div>
+ <p class="fine">No change needed: ${k.map(p=>esc(bd(p.activity_id).name)).join(', ')||'none'}.</p>${pending().length&&!S.off?`<button class="btn" data-a="all">Approve all remaining (${pending().length})</button>`:''}</div>`}
+
+function panel(id,p){if(!S.open)return '';const note=`<label class="f">${S.open==='mod'?'Why are you changing it? (saved with your decision)':'Reason (optional)'}<textarea id="note" rows="2" maxlength="500">${esc(S.note)}</textarea></label>`;
+ if(S.open==='mod')return `<section class="card"><h3>Pick one of these options</h3>${p.options.map((o,i)=>`<label class="opt"><input type="radio" name="o" value="${i}" ${S.opt===i?'checked':''}><span><b>${AL[o.action]}</b> ${esc(o.detail)}<small>${o.new_duration} min at ${o.new_start}, ${esc(o.new_zone)}. Modeled exposure ${f1(o.modeled_after)}</small></span></label>`).join('')}${note}<button class="btn p" data-a="smod">Save my choice</button></section>`;
+ return `<section class="card"><h3>Keep the schedule as it is</h3><p class="lead">Nothing will change.</p>${note}<button class="btn d" data-a="srj">Yes, keep the schedule</button></section>`}
+function dec(){const id=S.sel,b=S.A.risk_board.find(x=>x.activity_id===id),p=S.A.plan.find(x=>x.activity_id===id),m=p.modeled_impact,e=E(),w=m.before?m.after/m.before*100:100,it=item(id);
+ const alt=p.options.filter(o=>o.action!==p.action).map(o=>`${AL[o.action]}: ${esc(o.detail)} (${f1(o.modeled_after)})`).join('; ')||'None';
+ const log=it&&it.decided_by?`<section class="card ok"><h3>✓ Saved: ${SL[it.status]}</h3><div>${esc(it.detail)}</div><div class="fine">${esc(it.decided_by)} at ${T(it.decided_at)}${it.note?`. Note: ${esc(it.note)}`:''}</div></section>`:'';
+ const acts=p.action==='KEEP'?'<p class="lead">Nothing needs to change for this activity.</p>':S.off?'<p class="lead">Demo mode: connect the system to approve or change things.</p>':`<button class="btn p" data-a="ap" data-id="${id}">✓ Approve this</button><button class="btn" data-a="mo">Choose another way</button><button class="btn d" data-a="rj">Keep the schedule as it is</button>`;
+ return `<div class="wrap"><button class="back" data-a="plan">← Back to plan</button><h2>${b.setting==='Outdoor'?'☀️':'🏠'} ${esc(b.name)}</h2><p class="lead">${b.time} to ${end(b.time,b.duration)}, ${b.setting.toLowerCase()}, ${esc(b.zone)}</p>${chip(b.risk)} <span class="st">Confidence: ${esc(p.confidence)}</span>${msg()}
+<section class="card"><h3>What we suggest</h3><div class="big">${AL[p.action]}</div><p>${esc(p.detail)}</p></section>
+<section class="card"><h3>Exposure score (lower is better)</h3><div class="bar"><span>Now</span><div><i style="width:100%;background:var(--hi)"></i></div><b>${f1(m.before)}</b></div><div class="bar"><span>After</span><div><i style="width:${w}%;background:var(--lo)"></i></div><b>${f1(m.after)}</b></div></section>
+<section class="card"><h3>Why</h3><ul>${p.evidence.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><details><summary>More details</summary><p>${esc(p.reason)}</p><dl class="prov"><dt>AQI</dt><dd>${e.aqi} (${esc(e.category)})</dd>${prov(e)}<dt>Duration</dt><dd>${b.duration} min</dd><dt>Other options</dt><dd>${alt}</dd></dl></details></section>${log}${acts}${panel(id,p)}</div>`}
+
+function dpHtml(d){return `<p class="lead">${esc(d.school)}, ${esc(d.date)}</p><section class="card">${d.items.map(i=>`<div class="item"><b>${i.time} ${esc(i.activity)}</b> ${chip(i.risk)}<small>${SL[i.status]}: ${esc(i.detail)}</small>${i.decided_by?`<small>${esc(i.decided_by)} at ${T(i.decided_at)}${i.note?`. Note: ${esc(i.note)}`:''}</small>`:''}</div>`).join('')}</section>${d.prepared_by.length?`<p class="fine">Prepared by ${d.prepared_by.map(esc).join(', ')}.</p>`:''}`}
+function impact(){if(!S.A||!S.A.impact)return `<div class="wrap"><h2>Impact</h2>${msg()}<section class="card"><p class="lead">No impact to show yet. Run Plan my day with trusted environmental data.</p></section></div>`;
+ const d=S.dp&&S.dp.impact,n=d?d.decided:0,r=n?{i:d.final_index,p:d.pct_lower}:{i:S.A.impact.proposed_index,p:S.A.impact.pct_lower},c=s=>S.dp?S.dp.items.filter(i=>i.status===s).length:0;
+ return `<div class="wrap"><h2>Impact</h2>${msg()}<section class="card"><div class="big2"><span>100</span><span aria-hidden="true">\u2192</span><span>${r.i}</span></div><p class="lead">${r.p}% lower modeled exposure index under this scenario${n?'':', if every recommendation is approved'}.</p><p class="fine">${esc(S.A.disclaimer)} It is a scenario comparison, not a medical or pollution-reduction claim.</p><div class="counts"><div><b>${c('APPROVED')}</b><span>Approved</span></div><div><b>${c('MODIFIED')}</b><span>Modified</span></div><div><b>${c('REJECTED')}</b><span>Rejected</span></div><div><b>${pending().length}</b><span>Waiting</span></div></div></section>
+ <h2>Daily safety plan</h2>${S.dp?dpHtml(S.dp):'<section class="card"><p class="lead">The daily plan is saved by the API once you connect it.</p></section>'}</div>`}
+function hist(){const h=S.hist;return `<div class="wrap"><h2>History</h2>${msg()}${S.off?'<section class="card"><p class="lead">History is saved by the API. Connect it to see past analyses.</p></section>':!h?'':!h.length?'<section class="card"><p class="lead">No analyses yet. Run Plan my day to create the first one.</p></section>':h.map(x=>`<button class="card" data-a="hd" data-id="${esc(x.analysis_id)}"><div class="ph"><span class="badge ${x.mode==='LIVE'?'live':'rep'}">${x.mode==='LIVE'?'\u25CF LIVE':'\u25C6 REPLAY'}</span><span class="st">${esc((x.created_at||'').slice(0,16).replace('T',' '))}</span></div><h3>AQI ${x.aqi==null?'unavailable':x.aqi}${x.category?', '+esc(x.category):''}</h3><div class="fine">${x.approved} approved, ${x.modified} modified, ${x.rejected} rejected, ${x.pending} waiting. Modeled index ${x.final_index==null?'n/a':f1(x.final_index)}.</div></button>`).join('')}</div>`}
+const hd=()=>`<div class="wrap"><button class="back" data-a="hist">Back to history</button><h2>Daily safety plan</h2>${msg()}${S.hd?dpHtml(S.hd):''}</div>`;
+const busy=()=>`<div class="wrap"><div class="card load" role="status"><div class="num" aria-hidden="true">\u2026</div><p>${S.busy==='analyze'?LOAD[S.bm]:S.busy==='save'?'Saving your decision\u2026':'Loading\u2026'}</p></div></div>`;
+
+const NAV=[['today','Today','🏠'],['plan','Plan','📋'],['impact','Impact','📊'],['hist','History','🕘']];
+function render(){const v=S.busy?busy():({login,today,plan,dec,impact,hist,hd}[S.scr])(),cur=S.scr==='dec'?'plan':S.scr==='hd'?'hist':S.scr;
+ $('#app').innerHTML=v+(S.scr==='login'?'':`<nav aria-label="Main">${NAV.map(n=>`<button data-a="${n[0]}" ${n[0]===cur?'aria-current="page"':''}><b aria-hidden="true">${n[2]}</b>${n[1]}</button>`).join('')}</nav>`)}
+const decide=(id,decision,extra)=>run('save',async()=>{await API.createDecision({analysis_id:S.A.analysis_id,activity_id:id,decision:decision,note:S.note.trim()||undefined,...extra});await syncDp();S.open=null;S.note=''});
+
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,id=t.dataset.id||S.sel;S.err=null;window.scrollTo(0,0);
+ if(a==='go'){S.base=CONFIG.API_BASE.replace(/\/+$/,'');S.name=($('#adm').value||'').trim();S.token=($('#tok')||{}).value||'';S.off=!S.base;
+  if(S.off){S.A=FB;S.dp=null;S.school={name:FB.school};S.scr='today';return render()}
+  return run('load',async()=>{S.school=await API.getSchool();S.A=null;S.dp=null;S.scr='today';keep()})}
+ if(a==='demo'){S.off=true;S.A=FB;S.dp=null;S.school={name:FB.school};S.scr='today'}
+ else if(a==='out'){try{sessionStorage.removeItem('bo')}catch(x){}Object.assign(S,{scr:'login',A:null,dp:null,hist:null,token:'',off:false})}
+ else if(a==='plan'){if(S.off){S.scr='plan'}else if(S.A&&S.A.analysis_id){return run('load',async()=>{await syncDp();S.scr='plan'})}else return run('analyze',async()=>{S.A=await API.analyze();keep();await syncDp();S.scr='plan'})}
+ else if(a==='refresh'){if(S.off){S.err={error:{message:'Refresh requires the connected API.'}}}else return run('analyze',async()=>{S.A=await API.analyze();keep();await syncDp();S.scr='today'})}
+ else if(a==='today'){S.scr='today';S.open=null}
+ else if(a==='impact'){S.scr='impact';if(!S.off&&S.A)return run('load',syncDp)}
+ else if(a==='hist'){S.scr='hist';if(!S.off)return run('load',async()=>{S.hist=(await API.getHistory()).history})}
+ else if(a==='hd')return run('load',async()=>{S.hd=await API.getDailyPlan(id);S.scr='hd'});
+ else if(a==='open'){S.sel=id;S.scr='dec';S.open=null}
+ else if(a==='ap'){S.note='';return decide(id,'APPROVE')}
+ else if(a==='mo'){S.open='mod';S.opt=0}
+ else if(a==='rj'){S.open='rej'}
+ else if(a==='smod'){const o=S.A.plan.find(x=>x.activity_id===id).options[S.opt];return decide(id,'MODIFY',{modification:o.modification})}
+ else if(a==='srj')return decide(id,'REJECT');
+ else if(a==='all'){S.note='';return run('save',async()=>{for(const p of pending())await API.createDecision({analysis_id:S.A.analysis_id,activity_id:p.activity_id,decision:'APPROVE'});await syncDp()})}
+ render()});
+document.addEventListener('input',e=>{if(e.target.id==='note')S.note=e.target.value});
+document.addEventListener('change',e=>{if(e.target.name==='o')S.opt=+e.target.value});
+(async()=>{const s=load();if(CONFIG.API_BASE&&s.name){Object.assign(S,{base:CONFIG.API_BASE.replace(/\/+$/,''),token:s.token||'',name:s.name,A:s.A||null,scr:'today'});render();
+ try{S.school=await API.getSchool();await syncDp()}catch(e){S.err=e;if((e.error||{}).code==='UNAUTHORIZED')S.scr='login'}}render()})();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,339 @@
+{
+  "environment": {
+    "aqi": 238,
+    "category": "Poor",
+    "pm25": 101.8,
+    "source": "REPLAY (CPCB-format scenario)",
+    "station": "Bidar (demo)",
+    "mode": "REPLAY",
+    "snapshot_id": null,
+    "label": "REPLAY — Demonstration scenario",
+    "observed_at": "2026-10-10T08:32:00",
+    "retrieved_at": "2026-10-10T08:40:00",
+    "quality": "OK",
+    "status": "FRESH",
+    "age_minutes": 8,
+    "confidence": "High"
+  },
+  "risk_board": [
+    {
+      "activity_id": "a1",
+      "name": "Assembly",
+      "time": "09:00",
+      "duration": 30,
+      "zone": "Assembly Ground",
+      "setting": "Outdoor",
+      "dose": 13.92,
+      "risk": "MEDIUM"
+    },
+    {
+      "activity_id": "a2",
+      "name": "Mathematics",
+      "time": "10:30",
+      "duration": 45,
+      "zone": "Main Building",
+      "setting": "Indoor",
+      "dose": 6.26,
+      "risk": "LOW"
+    },
+    {
+      "activity_id": "a3",
+      "name": "Sports",
+      "time": "12:00",
+      "duration": 60,
+      "zone": "Sports Ground",
+      "setting": "Outdoor",
+      "dose": 55.68,
+      "risk": "HIGH"
+    },
+    {
+      "activity_id": "a4",
+      "name": "Lunch",
+      "time": "13:00",
+      "duration": 45,
+      "zone": "Cafeteria",
+      "setting": "Indoor",
+      "dose": 6.26,
+      "risk": "LOW"
+    },
+    {
+      "activity_id": "a5",
+      "name": "Bus departure",
+      "time": "15:00",
+      "duration": 20,
+      "zone": "Bus Area",
+      "setting": "Outdoor",
+      "dose": 12.06,
+      "risk": "MEDIUM"
+    }
+  ],
+  "plan": [
+    {
+      "activity_id": "a1",
+      "action": "MOVE_INDOORS",
+      "priority": 2,
+      "detail": "Move to Main Building",
+      "reason": "MEDIUM modeled exposure (13.9 weighted-min): outdoor assembly, 30 min at AQI 238 (Poor). Move to Main Building.",
+      "evidence": [
+        "AQI 238 (Poor)",
+        "Outdoor, 30 min",
+        "Data fresh, 8 min old"
+      ],
+      "confidence": "High",
+      "modeled_impact": {
+        "before": 13.92,
+        "after": 4.18
+      },
+      "new_start": "09:00",
+      "new_duration": 30,
+      "new_zone": "Main Building",
+      "options": [
+        {
+          "action": "KEEP",
+          "detail": "No change",
+          "modeled_after": 13.92,
+          "new_start": "09:00",
+          "new_duration": 30,
+          "new_zone": "Assembly Ground",
+          "modification": {
+            "zone_id": "assembly",
+            "start": "09:00",
+            "duration": 30
+          }
+        },
+        {
+          "action": "MOVE_INDOORS",
+          "detail": "Move to Main Building",
+          "modeled_after": 4.18,
+          "new_start": "09:00",
+          "new_duration": 30,
+          "new_zone": "Main Building",
+          "modification": {
+            "zone_id": "main",
+            "start": "09:00",
+            "duration": 30
+          }
+        },
+        {
+          "action": "SHORTEN",
+          "detail": "Shorten to 15 min",
+          "modeled_after": 6.96,
+          "new_start": "09:00",
+          "new_duration": 15,
+          "new_zone": "Assembly Ground",
+          "modification": {
+            "zone_id": "assembly",
+            "start": "09:00",
+            "duration": 15
+          }
+        },
+        {
+          "action": "MONITOR",
+          "detail": "Keep, re-check conditions before start",
+          "modeled_after": 13.92,
+          "new_start": "09:00",
+          "new_duration": 30,
+          "new_zone": "Assembly Ground",
+          "modification": {
+            "zone_id": "assembly",
+            "start": "09:00",
+            "duration": 30
+          }
+        }
+      ]
+    },
+    {
+      "activity_id": "a2",
+      "action": "KEEP",
+      "priority": null,
+      "detail": "No change",
+      "reason": "LOW modeled exposure (6.3 weighted-min): indoor mathematics, 45 min at AQI 238 (Poor). No change.",
+      "evidence": [
+        "AQI 238 (Poor)",
+        "Indoor, 45 min",
+        "Data fresh, 8 min old"
+      ],
+      "confidence": "High",
+      "modeled_impact": {
+        "before": 6.26,
+        "after": 6.26
+      },
+      "new_start": "10:30",
+      "new_duration": 45,
+      "new_zone": "Main Building",
+      "options": [
+        {
+          "action": "KEEP",
+          "detail": "No change",
+          "modeled_after": 6.26,
+          "new_start": "10:30",
+          "new_duration": 45,
+          "new_zone": "Main Building",
+          "modification": {
+            "zone_id": "main",
+            "start": "10:30",
+            "duration": 45
+          }
+        }
+      ]
+    },
+    {
+      "activity_id": "a3",
+      "action": "SHORTEN",
+      "priority": 1,
+      "detail": "Shorten to 30 min",
+      "reason": "HIGH modeled exposure (55.7 weighted-min): outdoor sports, 60 min at AQI 238 (Poor). Shorten to 30 min.",
+      "evidence": [
+        "AQI 238 (Poor)",
+        "Outdoor, 60 min",
+        "Data fresh, 8 min old"
+      ],
+      "confidence": "High",
+      "modeled_impact": {
+        "before": 55.68,
+        "after": 27.84
+      },
+      "new_start": "12:00",
+      "new_duration": 30,
+      "new_zone": "Sports Ground",
+      "options": [
+        {
+          "action": "KEEP",
+          "detail": "No change",
+          "modeled_after": 55.68,
+          "new_start": "12:00",
+          "new_duration": 60,
+          "new_zone": "Sports Ground",
+          "modification": {
+            "zone_id": "sports",
+            "start": "12:00",
+            "duration": 60
+          }
+        },
+        {
+          "action": "SHORTEN",
+          "detail": "Shorten to 30 min",
+          "modeled_after": 27.84,
+          "new_start": "12:00",
+          "new_duration": 30,
+          "new_zone": "Sports Ground",
+          "modification": {
+            "zone_id": "sports",
+            "start": "12:00",
+            "duration": 30
+          }
+        },
+        {
+          "action": "MONITOR",
+          "detail": "Keep, re-check conditions before start",
+          "modeled_after": 55.68,
+          "new_start": "12:00",
+          "new_duration": 60,
+          "new_zone": "Sports Ground",
+          "modification": {
+            "zone_id": "sports",
+            "start": "12:00",
+            "duration": 60
+          }
+        }
+      ]
+    },
+    {
+      "activity_id": "a4",
+      "action": "KEEP",
+      "priority": null,
+      "detail": "No change",
+      "reason": "LOW modeled exposure (6.3 weighted-min): indoor lunch, 45 min at AQI 238 (Poor). No change.",
+      "evidence": [
+        "AQI 238 (Poor)",
+        "Indoor, 45 min",
+        "Data fresh, 8 min old"
+      ],
+      "confidence": "High",
+      "modeled_impact": {
+        "before": 6.26,
+        "after": 6.26
+      },
+      "new_start": "13:00",
+      "new_duration": 45,
+      "new_zone": "Cafeteria",
+      "options": [
+        {
+          "action": "KEEP",
+          "detail": "No change",
+          "modeled_after": 6.26,
+          "new_start": "13:00",
+          "new_duration": 45,
+          "new_zone": "Cafeteria",
+          "modification": {
+            "zone_id": "cafe",
+            "start": "13:00",
+            "duration": 45
+          }
+        }
+      ]
+    },
+    {
+      "activity_id": "a5",
+      "action": "MONITOR",
+      "priority": 2,
+      "detail": "Keep, re-check conditions before start",
+      "reason": "MEDIUM modeled exposure (12.1 weighted-min): outdoor bus departure, 20 min at AQI 238 (Poor). Keep, re-check conditions before start.",
+      "evidence": [
+        "AQI 238 (Poor)",
+        "Outdoor, 20 min",
+        "Data fresh, 8 min old"
+      ],
+      "confidence": "High",
+      "modeled_impact": {
+        "before": 12.06,
+        "after": 12.06
+      },
+      "new_start": "15:00",
+      "new_duration": 20,
+      "new_zone": "Bus Area",
+      "options": [
+        {
+          "action": "KEEP",
+          "detail": "No change",
+          "modeled_after": 12.06,
+          "new_start": "15:00",
+          "new_duration": 20,
+          "new_zone": "Bus Area",
+          "modification": {
+            "zone_id": "bus",
+            "start": "15:00",
+            "duration": 20
+          }
+        },
+        {
+          "action": "MONITOR",
+          "detail": "Keep, re-check conditions before start",
+          "modeled_after": 12.06,
+          "new_start": "15:00",
+          "new_duration": 20,
+          "new_zone": "Bus Area",
+          "modification": {
+            "zone_id": "bus",
+            "start": "15:00",
+            "duration": 20
+          }
+        }
+      ]
+    }
+  ],
+  "impact": {
+    "baseline_index": 100.0,
+    "proposed_index": 60.1,
+    "pct_lower": 39.9,
+    "label": "39.9% lower modeled exposure index under this scenario"
+  },
+  "ai": {
+    "attempted": false,
+    "used_fallback": true,
+    "validation_errors": [],
+    "error": null
+  },
+  "warnings": [],
+  "disclaimer": "Modeled decision-support index. Not a clinical or epidemiological measure."
+}

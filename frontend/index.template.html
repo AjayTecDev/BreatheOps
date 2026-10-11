@@ -1,0 +1,141 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BreatheOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// No business logic here: request, receive, display, submit decisions. FB (canonical replay) is the offline fallback only.
+const FB=__FALLBACK__;
+// ===== PRODUCTION CONFIG: the only block to edit per deployment (then run: python frontend/build.py) =====
+const CONFIG={
+ API_BASE:"__API_BASE__",   // PLACEHOLDER: your API Gateway URL, e.g. https://abc123.execute-api.ap-south-1.amazonaws.com  (not a secret). Empty = demo mode with a saved example day.
+ AUTH:"__AUTH__"    // "demo" for local testing | "token" for production (staff then type the access code = ADMIN_TOKEN)
+};
+const S={scr:'login',base:'',token:'',name:'',school:null,A:null,dp:null,hist:null,hd:null,sel:null,open:null,opt:0,note:'',busy:null,bm:0,err:null,off:false};
+const $=s=>document.querySelector(s);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f1=n=>(Math.round(n*10)/10).toFixed(1);
+const T=i=>{if(!i)return 'unavailable';const s=String(i);const v=/(?:Z|[+-]\d{2}:\d{2})$/i.test(s)?s:s+'Z';const d=new Date(v);return Number.isNaN(d.getTime())?'unavailable':new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)};
+const mins=t=>{const[h,n]=t.split(':').map(Number);return h*60+n};
+const end=(t,m)=>{const x=mins(t)+m;return String(x/60|0).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+const AL={KEEP:'Keep as planned',MOVE_INDOORS:'Move indoors',SHORTEN:'Make it shorter',RESCHEDULE:'Move to another time',MONITOR:'Keep it, check again before'};
+const SAY={Good:['🌤️','Air is good today','No changes are needed.'],Satisfactory:['🌤️','Air is fine today','No changes are needed.'],Moderate:['🌥️','Air is moderate today','A few outdoor activities may need a change.'],Poor:['🌫️','Air is poor today','Some outdoor activities need a change.'],'Very poor':['🌫️','Air is very poor today','Most outdoor activities need a change.'],Severe:['🌫️','Air is severe today','Outdoor activities need a change.']};
+const SL={APPROVED:'Approved',MODIFIED:'Modified',REJECTED:'Rejected',PENDING:'Waiting for decision',NO_CHANGE:'No change needed'};
+const RK={HIGH:['\u25B2','High','hi'],MEDIUM:['\u25C6','Medium','md'],LOW:['\u25CF','Low','lo']};
+const QL={OK:'Reported AQI',DERIVED:'Derived from PM2.5',DEGRADED:'Last trusted reading'};
+const LOAD=["Analyzing today's schedule\u2026",'Checking environmental conditions\u2026','Evaluating activities\u2026','Preparing recommendations\u2026'];
+const MSG={UNAUTHORIZED:'That access code was not accepted. Please sign in again.',NETWORK:'Cannot reach BreatheOps right now. Please check your connection and try again.',NO_TIMETABLE:"No timetable configured. Add activities to analyze today's schedule.",ENVIRONMENT_UNAVAILABLE:'Environmental data is temporarily unavailable, so decisions are paused.'};
+const E=()=>S.A.environment;
+const WM={DEGRADED_DATA:()=>`Environmental data is temporarily unavailable. Using the last trusted snapshot. Confidence: ${E().confidence}.`,AI_FALLBACK:()=>'AI unavailable. Rule-based planning is active.',NO_ENV_DATA:()=>'Environmental data is temporarily unavailable. No recommendations were generated.'};
+
+const API={
+ async req(m,p,b){let r,j;const h={'Content-Type':'application/json'};if(S.name)h['X-Admin-Name']=S.name;if(S.token)h.Authorization='Bearer '+S.token;
+  try{r=await fetch(S.base+p,{method:m,headers:h,body:b?JSON.stringify(b):undefined});j=await r.json()}catch(e){throw{error:{code:'NETWORK'}}}
+  if(!j.success)throw j;return j.data},
+ getSchool(){return this.req('GET','/school')},
+ getZones(){return this.req('GET','/zones')},
+ getActivities(){return this.req('GET','/activities')},
+ analyze(b){return this.req('POST','/analyze',b||{})},
+ createDecision(b){return this.req('POST','/decisions',b)},
+ getDailyPlan(id){return this.req('GET','/daily-plan'+(id?'?analysis_id='+encodeURIComponent(id):''))},
+ getHistory(){return this.req('GET','/history?limit=20')}};
+
+const keep=()=>{try{sessionStorage.setItem('bo',JSON.stringify({base:S.base,token:S.token,name:S.name,A:S.off?null:S.A}))}catch(e){}};
+const load=()=>{try{return JSON.parse(sessionStorage.getItem('bo')||'{}')}catch(e){return{}}};
+async function run(kind,fn){S.err=null;S.busy=kind;S.bm=0;const t=kind==='analyze'?setInterval(()=>{S.bm=(S.bm+1)%4;render()},1400):0;render();
+ try{await fn()}catch(e){S.err=e}finally{clearInterval(t);S.busy=null}render()}
+async function syncDp(){if(S.off||!S.A||!S.A.analysis_id){S.dp=null;return}S.dp=await API.getDailyPlan(S.A.analysis_id)}
+
+const chip=r=>{const k=RK[r];return k?`<span class="chip ${k[2]}"><b aria-hidden="true">${k[0]}</b> ${k[1]} risk</span>`:'<span class="chip">No data</span>'};
+const item=id=>S.dp&&S.dp.items.find(i=>i.activity_id===id);
+const stat=id=>{const i=item(id);if(i)return SL[i.status];const p=S.A.plan.find(x=>x.activity_id===id);return p&&p.action==='KEEP'?SL.NO_CHANGE:SL.PENDING};
+const pending=()=>S.A.plan.filter(p=>p.action!=='KEEP'&&stat(p.activity_id)===SL.PENDING);
+const msg=()=>S.err?`<div class="err" role="alert">${esc(MSG[(S.err.error||{}).code]||(S.err.error||{}).message||'Something went wrong.')}${S.err.request_id?` Request ${esc(S.err.request_id)}.`:''}</div>`:'';
+const warns=()=>(S.off?'<div class="warn" role="status">Offline demo: showing the saved replay scenario. Connect the API to record decisions.</div>':'')+(S.A?S.A.warnings.filter(w=>w.code!=='PROVIDER'&&w.code!=='DERIVED_AQI').map(w=>`<div class="warn" role="status">\u26A0 ${esc(WM[w.code]?WM[w.code]():w.message)}</div>`).join(''):'');
+function modeBadge(e){if(e.mode==='LIVE')return `<span class="badge live">\u25CF LIVE</span> <span class="fine">${esc(e.label.replace(/^LIVE \u2014 /,''))}</span>`;
+ if(e.mode==='REPLAY')return '<span class="badge rep">\u25C6 REPLAY</span> <span class="fine">Demonstration scenario</span>';return '<span class="badge">No data</span>'}
+function scale(e){const bands=[[50,'#2f9e6f'],[100,'#8ab53a'],[200,'#d9a81e'],[300,'#e07a1f'],[400,'#c8352b'],[500,'#7a1f2b']];let p=0;
+ return `<div class="scale" role="img" aria-label="AQI ${e.aqi} on a 0 to 500 scale, ${esc(e.category)}">${bands.map(b=>{const w=b[0]-p;p=b[0];return `<i style="width:${w/5}%;background:${b[1]}"></i>`}).join('')}<span class="mk" style="left:${Math.min(e.aqi,500)/5}%"></span></div>`}
+function strip(){return `<div class="day" role="img" aria-label="School day colored by risk">${S.A.risk_board.map(b=>`<span class="blk ${(RK[b.risk]||['','','lo'])[2]}" style="left:${(mins(b.time)-510)/4.5}%;width:${b.duration/4.5}%" title="${esc(b.name)}"></span>`).join('')}</div><div class="ends"><span>08:30</span><span>16:00</span></div>`}
+function prov(e){return `<dt>Source</dt><dd>${esc(e.source)}</dd><dt>Station</dt><dd>${esc(e.station)}</dd><dt>Observed</dt><dd>${T(e.observed_at)}</dd><dt>Retrieved</dt><dd>${T(e.retrieved_at)}</dd><dt>Freshness</dt><dd>${esc(e.status.charAt(0)+e.status.slice(1).toLowerCase())}, ${e.age_minutes} min old</dd><dt>AQI type</dt><dd>${QL[e.quality]||''}</dd><dt>Confidence</dt><dd>${esc(e.confidence)}</dd><dt>Mode</dt><dd>${esc(e.mode)}</dd>`}
+
+function login(){return `<div class="wrap"><div class="hero"><div class="ico" aria-hidden="true">🍃</div><h1>BreatheOps</h1><p class="lead">Check today's air quality, see which school activities need a change, and decide with one tap.</p></div>${msg()}
+<section class="card"><label class="f">Your name<input id="adm" autocomplete="name" maxlength="60" placeholder="For example, Ms. Rao" value="${esc(S.name)}"></label>${CONFIG.AUTH==='token'?'<label class="f">Access code<input id="tok" type="password" autocomplete="current-password"></label>':''}<button class="btn p" data-a="go">Start</button>${CONFIG.API_BASE?'':'<p class="fine">Demo mode: this shows a saved example day. Nothing is recorded.</p>'}</section>
+<h2>How it works</h2><ol class="how"><li><b>See the air.</b> Today's air quality and where it came from.</li><li><b>Review the plan.</b> We suggest only changes your campus can really make.</li><li><b>You decide.</b> Approve, choose another way, or keep things as they are.</li></ol></div>`}
+
+function today(){const sc=S.school?S.school.name:'BreatheOps',top=`<p class="fine">${esc(S.name?'Hello, '+S.name:'Hello')}. <button class="back" data-a="out">Sign out</button></p><h2>${esc(sc)}</h2>`;
+ if(!S.A)return `<div class="wrap">${top}${msg()}<div class="hero"><div class="ico" aria-hidden="true">🍃</div><h3>Ready when you are</h3><p class="lead">Check today's air against your timetable.</p></div><button class="btn p" data-a="plan">Plan my day</button></div>`;
+ const e=E(),tot=S.A.risk_board.length,n=S.A.plan.filter(p=>p.action!=='KEEP').length,s=e.aqi==null?['⚠️','Air data is unavailable','No recommendations were made.']:(SAY[e.category]||SAY.Moderate),tone=e.aqi==null?'md':({Good:'lo',Satisfactory:'lo',Moderate:'md'}[e.category]||'hi');
+ return `<div class="wrap">${top}${modeBadge(e)}${msg()}${warns()}<div class="hero ${tone}"><div class="ico" aria-hidden="true">${s[0]}</div><h2>${s[1]}</h2><p>${e.aqi==null?s[2]:n+' of '+tot+' activities need attention. '+s[2]}</p></div><button class="btn p" data-a="plan">Plan my day</button>
+<button class="btn" data-a="refresh">Refresh analysis</button>
+<section class="card"><h3>Today's activities</h3>${strip()}<ul class="rows">${S.A.risk_board.map(b=>`<li><button class="row" data-a="open" data-id="${b.activity_id}"><span class="ico" aria-hidden="true">${b.setting==='Outdoor'?'☀️':'🏠'}</span><span class="n"><b>${b.time}</b> ${esc(b.name)}<small>${esc(b.zone)}, ${b.setting.toLowerCase()}, ${b.duration} min</small></span>${chip(b.risk)}</button></li>`).join('')}</ul></section>
+${e.aqi==null?'':`<section class="card"><details><summary>Air quality details</summary><div class="num">${e.aqi}</div><p class="cat">AQI, ${esc(e.category)}</p>${scale(e)}<dl class="prov">${prov(e)}</dl></details></section>`}</div>`}
+
+function plan(){if(!S.A)return `<div class="wrap"><h2>Today's plan</h2><section class="card"><p class="lead">No analysis yet. Run Plan my day first.</p></section><button class="btn p" data-a="plan">Plan my day</button></div>`;
+ const a=S.A.plan.filter(p=>p.action!=='KEEP').sort((x,y)=>x.priority-y.priority),k=S.A.plan.filter(p=>p.action==='KEEP'),bd=id=>S.A.risk_board.find(b=>b.activity_id===id);
+ if(!S.A.plan.length)return `<div class="wrap"><h2>Today's plan</h2>${warns()}<section class="card"><p class="lead">No recommendations. Environmental data is unavailable or the timetable is empty.</p></section></div>`;
+ return `<div class="wrap"><h2>Today's plan</h2>${msg()}${warns()}<div class="steps" aria-label="Steps"><span>1 See the air</span><span class="on">2 Review the plan</span><span>3 Decide</span></div><p class="lead">${a.length} changes suggested. ${k.length} activities need no change.</p><div class="grid">${a.map(p=>{const b=bd(p.activity_id);return `<button class="card" data-a="open" data-id="${p.activity_id}"><div class="ph">${chip(b.risk)}<span class="st">${stat(p.activity_id)}</span></div><h3>${b.time} ${esc(b.name)}</h3><div class="big">${AL[p.action]}</div><div>${esc(p.detail)}</div><div class="fine">Exposure score ${f1(p.modeled_impact.before)} → ${f1(p.modeled_impact.after)}</div></button>`}).join('')}</div>
+ <p class="fine">No change needed: ${k.map(p=>esc(bd(p.activity_id).name)).join(', ')||'none'}.</p>${pending().length&&!S.off?`<button class="btn" data-a="all">Approve all remaining (${pending().length})</button>`:''}</div>`}
+
+function panel(id,p){if(!S.open)return '';const note=`<label class="f">${S.open==='mod'?'Why are you changing it? (saved with your decision)':'Reason (optional)'}<textarea id="note" rows="2" maxlength="500">${esc(S.note)}</textarea></label>`;
+ if(S.open==='mod')return `<section class="card"><h3>Pick one of these options</h3>${p.options.map((o,i)=>`<label class="opt"><input type="radio" name="o" value="${i}" ${S.opt===i?'checked':''}><span><b>${AL[o.action]}</b> ${esc(o.detail)}<small>${o.new_duration} min at ${o.new_start}, ${esc(o.new_zone)}. Modeled exposure ${f1(o.modeled_after)}</small></span></label>`).join('')}${note}<button class="btn p" data-a="smod">Save my choice</button></section>`;
+ return `<section class="card"><h3>Keep the schedule as it is</h3><p class="lead">Nothing will change.</p>${note}<button class="btn d" data-a="srj">Yes, keep the schedule</button></section>`}
+function dec(){const id=S.sel,b=S.A.risk_board.find(x=>x.activity_id===id),p=S.A.plan.find(x=>x.activity_id===id),m=p.modeled_impact,e=E(),w=m.before?m.after/m.before*100:100,it=item(id);
+ const alt=p.options.filter(o=>o.action!==p.action).map(o=>`${AL[o.action]}: ${esc(o.detail)} (${f1(o.modeled_after)})`).join('; ')||'None';
+ const log=it&&it.decided_by?`<section class="card ok"><h3>✓ Saved: ${SL[it.status]}</h3><div>${esc(it.detail)}</div><div class="fine">${esc(it.decided_by)} at ${T(it.decided_at)}${it.note?`. Note: ${esc(it.note)}`:''}</div></section>`:'';
+ const acts=p.action==='KEEP'?'<p class="lead">Nothing needs to change for this activity.</p>':S.off?'<p class="lead">Demo mode: connect the system to approve or change things.</p>':`<button class="btn p" data-a="ap" data-id="${id}">✓ Approve this</button><button class="btn" data-a="mo">Choose another way</button><button class="btn d" data-a="rj">Keep the schedule as it is</button>`;
+ return `<div class="wrap"><button class="back" data-a="plan">← Back to plan</button><h2>${b.setting==='Outdoor'?'☀️':'🏠'} ${esc(b.name)}</h2><p class="lead">${b.time} to ${end(b.time,b.duration)}, ${b.setting.toLowerCase()}, ${esc(b.zone)}</p>${chip(b.risk)} <span class="st">Confidence: ${esc(p.confidence)}</span>${msg()}
+<section class="card"><h3>What we suggest</h3><div class="big">${AL[p.action]}</div><p>${esc(p.detail)}</p></section>
+<section class="card"><h3>Exposure score (lower is better)</h3><div class="bar"><span>Now</span><div><i style="width:100%;background:var(--hi)"></i></div><b>${f1(m.before)}</b></div><div class="bar"><span>After</span><div><i style="width:${w}%;background:var(--lo)"></i></div><b>${f1(m.after)}</b></div></section>
+<section class="card"><h3>Why</h3><ul>${p.evidence.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><details><summary>More details</summary><p>${esc(p.reason)}</p><dl class="prov"><dt>AQI</dt><dd>${e.aqi} (${esc(e.category)})</dd>${prov(e)}<dt>Duration</dt><dd>${b.duration} min</dd><dt>Other options</dt><dd>${alt}</dd></dl></details></section>${log}${acts}${panel(id,p)}</div>`}
+
+function dpHtml(d){return `<p class="lead">${esc(d.school)}, ${esc(d.date)}</p><section class="card">${d.items.map(i=>`<div class="item"><b>${i.time} ${esc(i.activity)}</b> ${chip(i.risk)}<small>${SL[i.status]}: ${esc(i.detail)}</small>${i.decided_by?`<small>${esc(i.decided_by)} at ${T(i.decided_at)}${i.note?`. Note: ${esc(i.note)}`:''}</small>`:''}</div>`).join('')}</section>${d.prepared_by.length?`<p class="fine">Prepared by ${d.prepared_by.map(esc).join(', ')}.</p>`:''}`}
+function impact(){if(!S.A||!S.A.impact)return `<div class="wrap"><h2>Impact</h2>${msg()}<section class="card"><p class="lead">No impact to show yet. Run Plan my day with trusted environmental data.</p></section></div>`;
+ const d=S.dp&&S.dp.impact,n=d?d.decided:0,r=n?{i:d.final_index,p:d.pct_lower}:{i:S.A.impact.proposed_index,p:S.A.impact.pct_lower},c=s=>S.dp?S.dp.items.filter(i=>i.status===s).length:0;
+ return `<div class="wrap"><h2>Impact</h2>${msg()}<section class="card"><div class="big2"><span>100</span><span aria-hidden="true">\u2192</span><span>${r.i}</span></div><p class="lead">${r.p}% lower modeled exposure index under this scenario${n?'':', if every recommendation is approved'}.</p><p class="fine">${esc(S.A.disclaimer)} It is a scenario comparison, not a medical or pollution-reduction claim.</p><div class="counts"><div><b>${c('APPROVED')}</b><span>Approved</span></div><div><b>${c('MODIFIED')}</b><span>Modified</span></div><div><b>${c('REJECTED')}</b><span>Rejected</span></div><div><b>${pending().length}</b><span>Waiting</span></div></div></section>
+ <h2>Daily safety plan</h2>${S.dp?dpHtml(S.dp):'<section class="card"><p class="lead">The daily plan is saved by the API once you connect it.</p></section>'}</div>`}
+function hist(){const h=S.hist;return `<div class="wrap"><h2>History</h2>${msg()}${S.off?'<section class="card"><p class="lead">History is saved by the API. Connect it to see past analyses.</p></section>':!h?'':!h.length?'<section class="card"><p class="lead">No analyses yet. Run Plan my day to create the first one.</p></section>':h.map(x=>`<button class="card" data-a="hd" data-id="${esc(x.analysis_id)}"><div class="ph"><span class="badge ${x.mode==='LIVE'?'live':'rep'}">${x.mode==='LIVE'?'\u25CF LIVE':'\u25C6 REPLAY'}</span><span class="st">${esc((x.created_at||'').slice(0,16).replace('T',' '))}</span></div><h3>AQI ${x.aqi==null?'unavailable':x.aqi}${x.category?', '+esc(x.category):''}</h3><div class="fine">${x.approved} approved, ${x.modified} modified, ${x.rejected} rejected, ${x.pending} waiting. Modeled index ${x.final_index==null?'n/a':f1(x.final_index)}.</div></button>`).join('')}</div>`}
+const hd=()=>`<div class="wrap"><button class="back" data-a="hist">Back to history</button><h2>Daily safety plan</h2>${msg()}${S.hd?dpHtml(S.hd):''}</div>`;
+const busy=()=>`<div class="wrap"><div class="card load" role="status"><div class="num" aria-hidden="true">\u2026</div><p>${S.busy==='analyze'?LOAD[S.bm]:S.busy==='save'?'Saving your decision\u2026':'Loading\u2026'}</p></div></div>`;
+
+const NAV=[['today','Today','🏠'],['plan','Plan','📋'],['impact','Impact','📊'],['hist','History','🕘']];
+function render(){const v=S.busy?busy():({login,today,plan,dec,impact,hist,hd}[S.scr])(),cur=S.scr==='dec'?'plan':S.scr==='hd'?'hist':S.scr;
+ $('#app').innerHTML=v+(S.scr==='login'?'':`<nav aria-label="Main">${NAV.map(n=>`<button data-a="${n[0]}" ${n[0]===cur?'aria-current="page"':''}><b aria-hidden="true">${n[2]}</b>${n[1]}</button>`).join('')}</nav>`)}
+const decide=(id,decision,extra)=>run('save',async()=>{await API.createDecision({analysis_id:S.A.analysis_id,activity_id:id,decision:decision,note:S.note.trim()||undefined,...extra});await syncDp();S.open=null;S.note=''});
+
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,id=t.dataset.id||S.sel;S.err=null;window.scrollTo(0,0);
+ if(a==='go'){S.base=CONFIG.API_BASE.replace(/\/+$/,'');S.name=($('#adm').value||'').trim();S.token=($('#tok')||{}).value||'';S.off=!S.base;
+  if(S.off){S.A=FB;S.dp=null;S.school={name:FB.school};S.scr='today';return render()}
+  return run('load',async()=>{S.school=await API.getSchool();S.A=null;S.dp=null;S.scr='today';keep()})}
+ if(a==='demo'){S.off=true;S.A=FB;S.dp=null;S.school={name:FB.school};S.scr='today'}
+ else if(a==='out'){try{sessionStorage.removeItem('bo')}catch(x){}Object.assign(S,{scr:'login',A:null,dp:null,hist:null,token:'',off:false})}
+ else if(a==='plan'){if(S.off){S.scr='plan'}else if(S.A&&S.A.analysis_id){return run('load',async()=>{await syncDp();S.scr='plan'})}else return run('analyze',async()=>{S.A=await API.analyze();keep();await syncDp();S.scr='plan'})}
+ else if(a==='refresh'){if(S.off){S.err={error:{message:'Refresh requires the connected API.'}}}else return run('analyze',async()=>{S.A=await API.analyze();keep();await syncDp();S.scr='today'})}
+ else if(a==='today'){S.scr='today';S.open=null}
+ else if(a==='impact'){S.scr='impact';if(!S.off&&S.A)return run('load',syncDp)}
+ else if(a==='hist'){S.scr='hist';if(!S.off)return run('load',async()=>{S.hist=(await API.getHistory()).history})}
+ else if(a==='hd')return run('load',async()=>{S.hd=await API.getDailyPlan(id);S.scr='hd'});
+ else if(a==='open'){S.sel=id;S.scr='dec';S.open=null}
+ else if(a==='ap'){S.note='';return decide(id,'APPROVE')}
+ else if(a==='mo'){S.open='mod';S.opt=0}
+ else if(a==='rj'){S.open='rej'}
+ else if(a==='smod'){const o=S.A.plan.find(x=>x.activity_id===id).options[S.opt];return decide(id,'MODIFY',{modification:o.modification})}
+ else if(a==='srj')return decide(id,'REJECT');
+ else if(a==='all'){S.note='';return run('save',async()=>{for(const p of pending())await API.createDecision({analysis_id:S.A.analysis_id,activity_id:p.activity_id,decision:'APPROVE'});await syncDp()})}
+ render()});
+document.addEventListener('input',e=>{if(e.target.id==='note')S.note=e.target.value});
+document.addEventListener('change',e=>{if(e.target.name==='o')S.opt=+e.target.value});
+(async()=>{const s=load();if(CONFIG.API_BASE&&s.name){Object.assign(S,{base:CONFIG.API_BASE.replace(/\/+$/,''),token:s.token||'',name:s.name,A:s.A||null,scr:'today'});render();
+ try{S.school=await API.getSchool();await syncDp()}catch(e){S.err=e;if((e.error||{}).code==='UNAUTHORIZED')S.scr='login'}}render()})();
+</script>
+</body>
+</html>
+
