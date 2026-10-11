@@ -1,36 +1,108 @@
 # BreatheOps
+
 *Don't just measure the air. Change what happens because of it.*
 
-Turns air-quality data + a school's real timetable into explainable, feasible, human-approved schedule actions.
+BreatheOps turns air-quality data and a school's real timetable into explainable, feasible, human-approved schedule actions.
 
-## Run it
+## Features
+
+- Deterministic exposure analysis and activity planning
+- Feasibility checks and safety guardrails
+- Replay-based air-quality scenarios for reliable demonstrations
+- Optional AI planner abstraction with a deterministic fallback
+- Decision history and audit attribution
+- Local API server that runs without AWS credentials
+- AWS Serverless Application Model (SAM) infrastructure template
+
+## Run locally
+
+Use Python 3.12 for the tested environment.
+
+Install the test dependency:
+
 ```bash
-pip install pytest
-python backend/demo.py                 # AQI 238 replay scenario -> plan + impact
-python -m pytest -q backend/tests      # 86 tests
-python backend/local_server.py         # full API on http://localhost:8787, no AWS, no keys
+python -m pip install pytest
 ```
 
-## Layout
-| Path | Role |
+Run the demonstration:
+
+```bash
+python backend/demo.py
+```
+
+The demonstration uses a replay scenario with AQI 238.
+
+Run the test suite:
+
+```bash
+python -m pytest -q backend/tests
+```
+
+The project has passed 86 tests in the current development environment.
+
+Start the local API server:
+
+```bash
+python backend/local_server.py
+```
+
+The local API is available at `http://localhost:8787`. Local replay mode does not require AWS credentials.
+
+## Project structure
+
+| Path | Purpose |
 |---|---|
-| `backend/src/breatheops/` `exposure, candidates, planner, trust, analyze` | pure domain: deterministic exposure, feasible actions, guardrails |
-| `providers, ingest` | `EnvironmentProvider`: Replay / Live (placeholder) / Resilient; normalization |
-| `ai.py` | `BedrockPlanner` / `DeterministicPlanner` (AI is optional) |
-| `services.py` | Analyze / Decision / History / DailyPlan / Campus services |
-| `api.py`, `handler.py` | transport + envelope + auth; thin Lambda entrypoint |
-| `repository.py` | `MemoryRepository` / `DynamoRepository`, one contract |
-| `config.py`, `auth.py`, `observability.py`, `errors.py` | configuration + validation, AuthService, structured logs, error codes |
-| `infra/template.yaml` | SAM: HTTP API (CORS, throttle), Lambda, DynamoDB, Bedrock policy, alarm (not deployed) |
-| `frontend/` | prototype on fixture data; API client rewrite is next (see `docs/FRONTEND.md`) |
-| `docs/` | ARCHITECTURE, EXPOSURE_MODEL, AI, API, SECURITY, THREAT_MODEL, FRONTEND, PITCH, MVP_48H |
+| `backend/src/breatheops/` | Exposure analysis, candidate actions, planning, trust guardrails and analysis logic |
+| `backend/src/breatheops/providers/` | Environment provider abstractions, including replay and live-provider scaffolding |
+| `backend/src/breatheops/ai.py` | Optional Bedrock planner abstraction and deterministic planner |
+| `backend/src/breatheops/services.py` | Analysis, decision, history, daily-plan and campus services |
+| `backend/src/breatheops/api.py` | API routing, request validation and response handling |
+| `backend/src/breatheops/handler.py` | Lambda entry point |
+| `backend/src/breatheops/repository.py` | Memory and DynamoDB repository implementations |
+| `backend/src/breatheops/config.py` | Configuration and environment validation |
+| `backend/src/breatheops/auth.py` | Authentication service |
+| `backend/src/breatheops/observability.py` | Structured logging and observability |
+| `infra/template.yaml` | SAM infrastructure for HTTP API, Lambda, DynamoDB and CloudWatch |
+| `frontend/` | Frontend prototype; verify API integration before describing it as production-connected |
+| `amplify-site/` | Static frontend deployment files |
+| `docs/` | Architecture, exposure model, AI, API, security, threat model, frontend and pitch documentation |
 
-## Keys & security
-No secrets in the repo. Copy `.env.example` -> `.env` (git-ignored). Replay/local mode needs no credentials. On AWS the Lambda role provides credentials; the source key and admin token go in SSM SecureString / Secrets Manager. `APP_ENV=production` refuses to start without TABLE, token auth and an https origin. See `docs/SECURITY.md` and `docs/THREAT_MODEL.md`.
+## Configuration and security
 
-**Single source of truth for demo numbers:** `docs/canonical_demo.json` (frozen by `backend/freeze_demo.py`). Tests fail if the engine
-or `PITCH.md` / `EXPOSURE_MODEL.md` drift from it.
+- Never commit real credentials, API keys or administrator tokens.
+- Use `.env.example` as a reference when configuring local development.
+- Keep `.env` out of version control.
+- In AWS, use the Lambda execution role for AWS service access.
+- Store production secrets in an appropriate secret-management service.
+- Configure production authentication and an explicit HTTPS frontend origin before public deployment.
+- Review `docs/SECURITY.md` and `docs/THREAT_MODEL.md` before deployment.
 
-## Deploy checklist (later)
-1. Enable a Bedrock model in your region -> `BedrockModelId`; 2. `sam build && sam deploy --guided`; 3. `TABLE=<table> python3 backend/scripts/seed_table.py`;
-4. choose the live source -> write its `parser` for `LiveProvider`, set `EnvironmentProvider=live`, `EnvironmentApiUrl/Key`; 5. `AppEnv=production`, `AuthMode=token`, `AdminToken`, `AllowedOrigin`, `BedrockModelArn`; 6. end-to-end test.
+The current deployment template grants DynamoDB access through `DynamoDBCrudPolicy`. **Bedrock invocation permission is not currently included in the template**, so do not assume that the deployed Lambda can invoke a Bedrock model.
+
+## Reproducible demo
+
+`docs/canonical_demo.json` is the project's canonical demonstration dataset. `backend/freeze_demo.py` is used to freeze the demonstration data and help prevent unintended drift in documented results.
+
+## AWS deployment checklist
+
+Deployment is not complete until the following steps have been verified:
+
+1. Review and validate `infra/template.yaml`.
+2. Configure a dedicated, least-privilege AWS deployment identity.
+3. Build and validate the SAM application.
+4. Configure production settings, including `AppEnv=production`, `AuthMode=token`, a strong administrator token and an explicit HTTPS `AllowedOrigin`.
+5. Deploy the backend to the selected AWS region.
+6. Configure the live environment provider only after its source parser and API settings are implemented and tested.
+7. Seed DynamoDB if required by the application workflow.
+8. Connect the frontend to the deployed API and verify authentication, CORS, error handling and end-to-end functionality.
+9. Test the deployed application before presenting it as production-ready.
+
+Bedrock integration requires a separate permissions and configuration review before enabling it.
+
+## Project status
+
+BreatheOps has a tested local backend and an AWS SAM infrastructure template. Public repository publication does not itself mean that the AWS backend is deployed or that the complete frontend-to-backend integration is live.
+
+## License
+
+Add a license file if you intend to grant others explicit permission to reuse, modify or distribute this project.
